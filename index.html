@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumo SQL - Trabalho</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Resumo SQL</h1>
+        <p>Trabalho: Introdução, comandos, exemplos e boas práticas</p>
+    </header>
+    <main>
+        <section>
+            <h2>🧠 O Que é SQL?</h2>
+            <p>SQL (Structured Query Language) é a linguagem padrão para gerenciar e manipular bancos de dados relacionais. Com SQL, você pode:</p>
+            <ul>
+                <li>Criar estruturas de dados (tabelas, índices);</li>
+                <li>Inserir, consultar, atualizar e deletar dados;</li>
+                <li>Controlar permissões;</li>
+                <li>Criar rotinas automáticas (views, triggers, stored procedures).</li>
+            </ul>
+        </section>
+        <section>
+            <h2>📦 Principais Comandos SQL</h2>
+            <h3>🔷 DDL (Data Definition Language) — estrutura</h3>
+            <pre><code>CREATE TABLE produtos (
+    id INT PRIMARY KEY,
+    nome VARCHAR(100),
+    preco DECIMAL(10,2)
+);
+ALTER TABLE produtos ADD estoque INT;
+DROP TABLE produtos;
+</code></pre>
+            <h3>🔷 DML (Data Manipulation Language) — dados</h3>
+            <pre><code>INSERT INTO produtos (id, nome, preco) VALUES (1, 'Mouse', 49.90);
+SELECT * FROM produtos;
+SELECT nome FROM produtos WHERE preco > 50;
+UPDATE produtos SET preco = 59.90 WHERE id = 1;
+DELETE FROM produtos WHERE id = 1;
+</code></pre>
+            <h3>🔷 DQL (Data Query Language) — consultas</h3>
+            <pre><code>SELECT nome FROM produtos WHERE preco BETWEEN 20 AND 100;
+SELECT * FROM produtos ORDER BY preco DESC;
+SELECT DISTINCT nome FROM produtos;
+</code></pre>
+            <h3>🔷 DCL (Data Control Language) — permissões</h3>
+            <pre><code>GRANT SELECT ON produtos TO usuario;
+REVOKE SELECT ON produtos FROM usuario;
+</code></pre>
+            <h3>🔷 TCL (Transaction Control Language)</h3>
+            <pre><code>BEGIN;
+UPDATE contas SET saldo = saldo - 100 WHERE id = 1;
+UPDATE contas SET saldo = saldo + 100 WHERE id = 2;
+COMMIT; -- ou ROLLBACK;
+</code></pre>
+        </section>
+        <section>
+            <h2>🔗 Relacionamentos e JOINs</h2>
+            <ul>
+                <li>1:1 — uma pessoa tem um RG</li>
+                <li>1:N — um cliente pode fazer vários pedidos</li>
+                <li>N:N — alunos e cursos (precisa tabela intermediária)</li>
+            </ul>
+            <h3>🔸 INNER JOIN</h3>
+            <pre><code>SELECT pedidos.id, clientes.nome
+FROM pedidos
+JOIN clientes ON pedidos.cliente_id = clientes.id;
+</code></pre>
+            <h3>🔸 LEFT JOIN</h3>
+            <pre><code>SELECT clientes.nome, pedidos.id
+FROM clientes
+LEFT JOIN pedidos ON clientes.id = pedidos.cliente_id;
+</code></pre>
+            <h3>🔸 RIGHT JOIN / FULL JOIN</h3>
+            <p>(Dependem do SGBD. Ex: PostgreSQL tem FULL JOIN)</p>
+        </section>
+        <section>
+            <h2>🧮 Funções SQL</h2>
+            <h3>🔹 Agregadas:</h3>
+            <pre><code>SELECT COUNT(*), AVG(preco), MAX(preco), MIN(preco), SUM(preco)
+FROM produtos;
+</code></pre>
+            <h3>🔹 String:</h3>
+            <pre><code>SELECT UPPER(nome), LOWER(nome), LENGTH(nome)
+FROM clientes;
+</code></pre>
+            <h3>🔹 Data:</h3>
+            <pre><code>SELECT CURRENT_DATE, CURRENT_TIME;
+SELECT EXTRACT(YEAR FROM data_nascimento) FROM clientes;
+</code></pre>
+        </section>
+        <section>
+            <h2>📂 Subqueries</h2>
+            <h3>No WHERE</h3>
+            <pre><code>SELECT nome FROM produtos WHERE preco > (
+    SELECT AVG(preco) FROM produtos
+);
+</code></pre>
+            <h3>Em FROM (tabelas derivadas)</h3>
+            <pre><code>SELECT media FROM (
+    SELECT AVG(preco) AS media FROM produtos
+) AS resultado;
+</code></pre>
+        </section>
+        <section>
+            <h2>🛠️ Objetos Avançados</h2>
+            <h3>🔸 VIEW (visões)</h3>
+            <pre><code>CREATE VIEW produtos_baratos AS
+SELECT * FROM produtos WHERE preco < 50;
+</code></pre>
+            <h3>🔸 INDEX</h3>
+            <pre><code>CREATE INDEX idx_nome ON clientes(nome);
+</code></pre>
+            <h3>🔸 TRIGGER</h3>
+            <pre><code>CREATE TRIGGER atualiza_estoque
+AFTER INSERT ON vendas
+FOR EACH ROW
+UPDATE produtos SET estoque = estoque - 1 WHERE id = NEW.produto_id;
+</code></pre>
+            <h3>🔸 STORED PROCEDURE (procedimentos)</h3>
+            <pre><code>CREATE PROCEDURE listar_produtos()
+BEGIN
+    SELECT * FROM produtos;
+END;
+</code></pre>
+        </section>
+        <section>
+            <h2>✅ Boas Práticas</h2>
+            <ul>
+                <li>Use nomes descritivos para tabelas e colunas;</li>
+                <li>Normalize os dados (formas normais);</li>
+                <li>Prefira INNER JOIN ao invés de subqueries desnecessárias;</li>
+                <li>Use LIMIT ou TOP para evitar retornar milhares de registros sem querer;</li>
+                <li>Sempre use WHERE em DELETE ou UPDATE.</li>
+            </ul>
+        </section>
+        <section>
+            <h2>🧪 Exercício Exemplo</h2>
+            <p><strong>Tabela clientes</strong><br>(id, nome, cidade)</p>
+            <p><strong>Tabela pedidos</strong><br>(id, cliente_id, valor)</p>
+            <p><strong>Consulta: nomes dos clientes com pedidos acima de R$ 500</strong></p>
+            <pre><code>SELECT clientes.nome
+FROM clientes
+JOIN pedidos ON clientes.id = pedidos.cliente_id
+WHERE pedidos.valor > 500;
+</code></pre>
+        </section>
+    </main>
+    <footer>
+        <p>Trabalho desenvolvido por Gabriel Santos</p>
+    </footer>
+</body>
+</html> 
